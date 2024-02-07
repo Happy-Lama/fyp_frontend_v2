@@ -55,7 +55,16 @@ router.beforeEach((to, from, next)=>{
   const appStore = useAppStore();
   // get_csrf_token('http://localhost:8000/dashboard/get_csrf_token/', appStore)
   get_csrf_token('https://fyp-backend-ot0p.onrender.com/dashboard/get_csrf_token/', appStore)
-  next()
+  const isAuthenticated = appStore.logged_in; // Assuming you have a method to check authentication status
+
+  // Check if the route requires authentication and the user is not authenticated
+  if (to.meta.authRequired && !isAuthenticated) {
+    // Redirect to the login page
+    next('/login');
+  } else {
+    // If the route does not require authentication or the user is authenticated, proceed with navigation
+    next();
+  }
 })
 
 export default router
