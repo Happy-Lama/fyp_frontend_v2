@@ -1,304 +1,457 @@
 <template>
-
-<v-container>
-    <v-card class="mb-8" >
-        <v-row align="center" justify="center" style="max-height: 100vh;">
-            <v-col>
-                <CircularChartComponent :chart-data="circhartData"/>
+    <LoadingScreen v-if="isLoading"></LoadingScreen>
+    <v-container>
+        <span class="text-h2">Overall Transformer Statistics</span>
+        <v-row  class="pa-5 mt-2" align="start">
+            <v-col cols="md-4" class="mb-5 pb-5 px-5">
+                <v-row>
+                    <v-card class="text-center pa-1" width="100%" variant="flat">
+                        <v-card-title>
+                            Number of Installed Modules
+                        </v-card-title>
+                        <v-card-text class="text-h1 pa-10">
+                            {{ transformer_stats.installed }}
+                        </v-card-text>
+                    </v-card>
+                    <v-card height="29rem" class="pb-15 mt-5" width="100%" variant="flat">
+                        <v-card-title>
+                            Transformer Status Statistics
+                        </v-card-title>
+                        <BarChartComponent :chartData="[transformer_stats.installed, transformer_stats.overloaded, transformer_stats.offline]"/>
+                    </v-card>
+                </v-row>
             </v-col>
-
-            <v-divider vertical style="height: 90vh;" class="mt-5" thickness="2"></v-divider>
-
-            <v-col style="height: 100vh;" justify="center" align="center">
-                <v-card align="center" style="height: 100vh;" justify="center" variant="flat">
-                    <v-card-title>
-                        Summary of Statistics
-                    </v-card-title>
-                    <v-row style="height: 95%;" align="center" justify="center">
-                        <v-col cols="6">
-                            <v-card variant="flat">
-                                <v-card-title class="text-h4">
-                                    {{ average_power.toFixed(4) }}
-                                </v-card-title>
-                                <v-card-text>
-                                    Average Power (kW)
-                                </v-card-text>
+            <v-col cols="md-4">
+                <v-row>
+                    <v-card class="text-center pa-1" width="100%" variant="flat">
+                        <v-card-title  >
+                            <!-- Parameter type -->
+                            <span class="text-h4">Loading (%)</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-card title="Average" class="text-center pa-2 mb-2 " variant="outlined">
+                                <!-- average value -->
+                                <h1>{{ (loading_stats.average *100).toFixed(2) }}</h1>
                             </v-card>
-                        </v-col>
-                        <v-col cols="6">
-                            <v-card variant="flat">
-                                <v-card-title class="text-h4">
-                                    {{ average_voltage }}    
-                                </v-card-title>
-                                <v-card-text>
-                                    Average Voltage (V)
-                                </v-card-text>
-                                
+                            <v-row align="center" dense="true">
+                                <v-col cols="md-6" >
+                                    <v-card title="Min" class="text-center" variant="outlined">
+                                        <!-- min value -->
+                                        <v-card :title="(loading_stats.min *100).toFixed(2)" class="pb-2">
+                                            <!-- associated transformer -->
+                                            <v-divider class="mb-2"></v-divider>
+                                            Transformer {{ loading_stats.transformer_min }}
+                                        </v-card>
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="md-6">
+                                    <v-card title="Max" variant="outlined">
+                                        <!-- max value -->
+                                        <v-card :title="(loading_stats.max *100).toFixed(2)" class="pb-2">
+                                            <!-- associated transformer -->
+                                            <v-divider class="mb-2"></v-divider>
+                                            Transformer {{ loading_stats.transformer_max }}
+                                        </v-card>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
+                </v-row>
+                <v-row>
+                    <v-card class="text-center pa-1" width="100%" variant="flat">
+                        <v-card-title  >
+                            <!-- Parameter type -->
+                            <span class="text-h4">Frequency (Hz)</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-card title="Average" class="text-center pa-2 mb-2 " variant="outlined">
+                                <!-- average value -->
+                                <h1>{{ frequency_stats.average.toFixed(2) }}</h1>
                             </v-card>
-                        </v-col>
-                        <v-col cols="6" align-self="start">
-                            <v-card variant="flat">
-                                <v-card-title class="text-h4">
-                                    {{ average_transformer_loading }}
-                                </v-card-title>
-                                <v-card-text>
-                                    Average Transformer Loading (%)
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-                        <v-col cols="6" align-self="start">
-                            <v-card variant="flat" >
-                                <v-card-title class="text-h4">
-                                    {{ average_frequency }}
-                                </v-card-title>
-                                <v-card-text>
-                                    Average Frequency (Hz)
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-                    </v-row>
+                            <v-row align="center" dense="true">
+                                <v-col cols="md-6" >
+                                    <v-card title="Min" class="text-center" variant="outlined">
+                                        <!-- min value -->
+                                        <v-card :title="frequency_stats.min.toFixed(2)" class="pb-2">
+                                            <!-- associated transformer -->
+                                            <v-divider class="mb-2"></v-divider>
+                                            Transformer {{ frequency_stats.transformer_min }}
+                                        </v-card>
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="md-6">
+                                    <v-card title="Max" variant="outlined">
+                                        <!-- max value -->
+                                        <v-card :title="frequency_stats.max.toFixed(2)" class="pb-2">
+                                            <!-- associated transformer -->
+                                            <v-divider class="mb-2"></v-divider>
+                                            Transformer {{ frequency_stats.transformer_min }}
+                                        </v-card>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
+                </v-row>
+            </v-col>
+            <v-col cols="md-4">
+                <v-card class="text-center px-1 pb-1" width="100%" variant="flat">
+                    <v-card-title>Phase Voltages</v-card-title>
+                        <v-table width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Phase
+                                </th>
+                                <th>
+                                    Average(V)
+                                </th>
+                                <th>
+                                    Min(V)
+                                </th>
+                                <th>
+                                    Max(V)
+                                </th>
+                                <th>
+                                    Min Associated Transformer(ID)
+                                </th>
+                                <th>
+                                    Max Associated Transformer(ID)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Ua
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ua.average.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ua.min.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ua.max.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ua.transformer_min }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ua.transformer_max }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Ub
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ub.average.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ub.min.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ub.max.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ub.transformer_min }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.ub.transformer_max }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Uc
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.uc.average.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.uc.min.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.uc.max.toFixed(2) }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.uc.transformer_min }}
+                                </td>
+                                <td>
+                                    {{ phase_voltage_stats.uc.transformer_max }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </v-table>
                 </v-card>
             </v-col>
         </v-row>
-    </v-card>
-    
-    <v-row>
+        <v-row>
 
-        <!-- Average Loading Chart -->
-        <v-col cols="6">
-            <ChartComponent :chart-data="loadingChartData" chart-title="Average Loading" data-type="loading_percentage"/>
-        </v-col>
+                <v-card width="100%" class="ma-8" >
+                    
+                    <ChartComponent :chartData="loading_moving_average"  dataType="loading_percentage" chartTitle="Loading History"/>
+                </v-card>
+                
+             
+                <v-card width="100%" class="ma-8" >
+                    <ChartComponent :chartData="frequency_moving_average"  dataType="frequency" chartTitle="Frequency History" />
+                </v-card>
 
-        <!-- Average Power Chart -->
-        <v-col cols="6">
-            <ChartComponent :chart-data="powerChartData" chart-title="Average Power" data-type="power"/>
-        </v-col>
+               
+                <v-card width="100%" class="ma-8" >
+                    <ChartComponent :chartData="phase_ua_moving_average"  dataType="voltage" chartTitle="Phase Ua History" />
+                </v-card>
 
-        <!-- Average Voltage Chart -->
-        <v-col cols="6">
-            <ChartComponent :chart-data="voltageChartData" chart-title="Average Voltage" data-type="voltage"/>
-        </v-col>
+               
+                <v-card width="100%" class="ma-8" >
+                    <ChartComponent :chartData="phase_ub_moving_average"  dataType="voltage" chartTitle="Phase Ub History" />
+                </v-card>
 
-        <!-- Average Reactive Power Chart -->
-        <v-col cols="6">
-            <ChartComponent :chart-data="reactivePowerChartData" chart-title="Average Reactive Power" data-type="reactive_power"/>
-        </v-col>
-
-        <!-- Average Current Chart -->
-        <v-col cols="6">
-            <ChartComponent :chart-data="currentChartData" chart-title="Average Current" data-type="current"/>
-        </v-col>
-
-        <!-- Average Frequency Chart  -->
-        <v-col cols="6">
-            <ChartComponent :chart-data="frequencyChartData" chart-title="Average Frequency" data-type="frequency"/>
-        </v-col>
-
-    </v-row>
-</v-container>
+                <v-card width="100%" class="ma-8" >
+                    <ChartComponent :chartData="phase_uc_moving_average"  dataType="voltage" chartTitle="Phase Uc History" />
+                </v-card>
+     
+        </v-row>
+    </v-container>
 
 </template>
 
 <script setup>
+// import CircularChartComponent from '@/components/CircularChartComponent.vue';
+import ChartComponent from '@/components/ChartComponent.vue'
+import BarChartComponent from '@/components/BarChartComponent.vue';
+import { ref, onMounted, watch } from 'vue';
+import { useTransformerDataStore } from '@/store/app';
+import { get_average_values, get_moving_average_values } from '@/httpservice';
+import LoadingScreen from '@/components/LoadingScreen.vue'
 
-import { ref, watch } from 'vue';
-import ChartComponent from '@/components/ChartComponent.vue';
-import CircularChartComponent from '@/components/CircularChartComponent.vue';
-import { useAppStore } from '@/store/app';
-import { onMounted } from 'vue';
-import { get_average_values, get_latest_transformer_data } from '@/httpservice';
-import { onUnmounted } from 'vue';
-
-const appStore = useAppStore();
-const average_power = ref(0.0);
-const average_voltage = ref(0.0);
-const average_transformer_loading = ref(0.0);
-const average_frequency = ref(0.0);
-
-const circhartData = ref({
-  online: 0,
-  offline: 0,
-});
-
-const powerChartData = ref({
-    label: 'Power',
-    data: {
-        x: [],
-        y: []
-    }
-});
-const reactivePowerChartData = ref({
-    label: 'Reactive Power',
-    data: {
-        x: [],
-        y: []
-    }
-});
-const voltageChartData = ref({
-    label: 'Voltage',
-    data: {
-        x: [],
-        y: []
-    }
-})
-const currentChartData = ref({
-    label: 'Current',
-    data: {
-        x: [],
-        y: []
-    }
-})
-const frequencyChartData = ref({
-    label: 'Frequency',
-    data: {
-        x: [],
-        y: []
-    }
-})
-const loadingChartData = ref({
-    label: 'Average Loading',
-    data: {
-        x: [],
-        y: []
-    }
+// const barChartData = ref([])
+const transformerDataStore = useTransformerDataStore();
+const isLoading = ref(null)
+const expand = ref(null)
+const transformer_stats = ref({
+    installed: 0,
+    online: 0,
+    offline: 0,
+    overloaded: 0
 })
 
-function updateValues(newVal, oldVal){
-    // let empty_val = new Proxy(Object())
-    // console.log("New value", newVal['average_transformer_loading'] == null)
-    // console.log("Old val", oldVal)
-    if(newVal['average_transformer_loading'] && newVal['average_output_voltage'] && newVal['average_output_power'] && newVal['average_output_frequency']){
-        average_transformer_loading.value = newVal['average_transformer_loading']
-        average_voltage.value = newVal['average_output_voltage']
-        average_power.value = newVal['average_output_power']/1000
-        average_frequency.value = newVal['average_output_frequency']
-        // console.log(average_current.value)
-        // average_current.value = 100
+const loading_stats = ref({
+    average: 0,
+    min: 0,
+    max: 0,
+    transformer_min: "",
+    transformer_max: ""
+})
 
-        circhartData.value = {
-            online: 0,
-            offline: 0,
-        }
+const frequency_stats = ref({
+    average: 0,
+    min: 0,
+    max: 0,
+    transformer_min: "",
+    transformer_max: ""
+})
 
-        appStore.transformer_location_data.forEach((location) => {
-            // console.log(location)
-            
+const phase_voltage_stats = ref({
+    ua: {
+        average: 0,
+        min: 0,
+        max: 0,
+        transformer_min: "",
+        transformer_max: ""
+    },
+    ub: {
+        average: 0,
+        min: 0,
+        max: 0,
+        transformer_min: "",
+        transformer_max: ""
+    },
+    uc: {
+        average: 0,
+        min: 0,
+        max: 0,
+        transformer_min: "",
+        transformer_max: ""
+    }, 
+})
+const loading_moving_average = ref({
+    mean: [],
+    min: [],
+    max: [],
+    timestamps: []
+})
 
-            if(location['operational']){
-                circhartData.value = { online: ++circhartData.value.online , offline: circhartData.value.offline }
-            } else {
-                circhartData.value = { online: circhartData.value.online , offline: ++circhartData.value.offline }
-            }
-        })
+const frequency_moving_average = ref({
+    mean: [],
+    min: [],
+    max: [],
+    timestamps: []
+})
 
-        console.log(circhartData.value)
-        let timestamps = []
-        let powerdata = []
-        let currentdata = []
-        let voltagedata = []
-        let reactivepowerdata = []
-        let frequencydata = []
-        let loadingdata = []
+const phase_ua_moving_average = ref({
+    mean: [],
+    min: [],
+    max: [],
+    timestamps: []
+})
 
-        if(appStore.moving_average_values){
-            appStore.moving_average_values.forEach((data) => {
-                timestamps.push(data['timestamp'])
-                powerdata.push(data['average_values']['output_power__avg']/1000)
-                currentdata.push(data['average_values']['output_current__avg'])
-                voltagedata.push(data['average_values']['output_voltage__avg'])
-                reactivepowerdata.push(data['average_values']['output_reactive_power__avg']/1000)
-                frequencydata.push(data['average_values']['output_frequency__avg'])
-                loadingdata.push(data['average_values']['current_loading_percentage__avg'])
-            })
-        
-            powerChartData.value = {
-                label: 'Power',
-                data: {
-                    x: timestamps,
-                    y: powerdata
-                }
-            }
-            
+const phase_ub_moving_average = ref({
+    mean: [],
+    min: [],
+    max: [],
+    timestamps: []
+})
+const phase_uc_moving_average = ref({
+    mean: [],
+    min: [],
+    max: [],
+    timestamps: []
+})
 
-            currentChartData.value = {
-                label: 'Current',
-                data: {
-                    x: timestamps,
-                    y: currentdata
-                }
-            }
-            
+function updateAverageValues(average_values){
+    transformer_stats.value = {
+        installed: average_values.number_registered,
+        online: average_values.number_on,
+        offline: average_values.number_off,
+        overloaded: average_values.number_overloaded,
+    }
 
-            voltageChartData.value ={
-                label: 'Voltage',
-                data: {
-                    x: timestamps,
-                    y: voltagedata
-                }
-            }
-            
-            
-            reactivePowerChartData.value = {
-                label: 'Reactive Power',
-                data: {
-                    x: timestamps,
-                    y: reactivepowerdata
-                }
-            }
-            
+    loading_stats.value = {
+        average: average_values.avg_loading,
+        min: average_values.min_loading.percentage_loading,
+        max: average_values.max_loading.percentage_loading,
+        transformer_min: average_values.min_loading.transformer_id,
+        transformer_max: average_values.min_loading.transformer_id
+    }
 
-            frequencyChartData.value = {
-                label: 'Frequency',
-                data: {
-                    x: timestamps,
-                    y: frequencydata
-                }
-            }
+    frequency_stats.value = {
+        average: average_values.avg_freq,
+        min: average_values.min_freq.out_freq,
+        max: average_values.max_freq.out_freq,
+        transformer_min: average_values.min_freq.transformer_id,
+        transformer_max: average_values.max_freq.transformer_id
+    }
 
-            loadingChartData.value = {
-                label: 'Average Loading',
-                data: {
-                    x: timestamps,
-                    y: loadingdata
-                }
-            }
-        }
+    phase_voltage_stats.value = {
+        ua: {
+            average: average_values.avg_ua,
+            min: average_values.min_ua.out_ua,
+            max: average_values.max_ua.out_ua,
+            transformer_min: average_values.min_ua.transformer_id,
+            transformer_max: average_values.max_ua.transformer_id
+        },
+
+        ub: {
+            average: average_values.avg_ub,
+            min: average_values.min_ub.out_ub,
+            max: average_values.max_ub.out_ub,
+            transformer_min: average_values.min_ub.transformer_id,
+            transformer_max: average_values.max_ub.transformer_id
+        },
+
+        uc: {
+            average: average_values.avg_uc,
+            min: average_values.min_uc.out_uc,
+            max: average_values.max_uc.out_uc,
+            transformer_min: average_values.min_uc.transformer_id,
+            transformer_max: average_values.max_uc.transformer_id
+        },
     }
 }
 
-const intervalID = ref(null)
 
-watch(() => appStore.average_values, (newVal, oldVal) => {
-    updateValues(newVal, oldVal)
-})
-
-onMounted(() => {
-    if(appStore.average_values == null){
-        // get_latest_transformer_data('http://localhost:8000/data/transformers/latest/', appStore)
-        // get_average_values('http://localhost:8000/data/transformers/average_values/', appStore)
-        get_latest_transformer_data('https://fyp-backend-ot0p.onrender.com/data/transformers/latest/', appStore)
-        get_average_values('https://fyp-backend-ot0p.onrender.com/data/transformers/average_values/', appStore)
-        
-
-        intervalID.value = setInterval(()=>{
-            // get_latest_transformer_data('http://localhost:8000/data/transformers/latest/', appStore)
-            // get_average_values('http://localhost:8000/data/transformers/average_values/', appStore)
-            get_latest_transformer_data('https://fyp-backend-ot0p.onrender.com/data/transformers/latest/', appStore)
-        get_average_values('https://fyp-backend-ot0p.onrender.com/data/transformers/average_values/', appStore)
-        }, 300000)
-    } else {
-        updateValues(appStore.average_values)
-        intervalID.value = setInterval(()=>{
-            // get_latest_transformer_data('http://localhost:8000/data/transformers/latest/', appStore)
-            // get_average_values('http://localhost:8000/data/transformers/average_values/', appStore)
-            get_latest_transformer_data('https://fyp-backend-ot0p.onrender.com/data/transformers/latest/', appStore)
-        get_average_values('https://fyp-backend-ot0p.onrender.com/data/transformers/average_values/', appStore)
-        }, 300000)
+function updateMovingAverageValues(moving_average_values){
+    // switch (stats) {
+        // case 'loading':
+    loading_moving_average.value = {
+        mean: Object.values(moving_average_values["('loading_percentage', 'mean')"]),
+        min: Object.values(moving_average_values["('loading_percentage', 'min')"]),
+        max: Object.values(moving_average_values["('loading_percentage', 'max')"]),
+        timestamps: Object.keys(moving_average_values["('loading_percentage', 'mean')"])
     }
+            // console.log(stats)
+            // console.log(loading_moving_average.value)
+            // break;
+        // case 'frequency':
+    frequency_moving_average.value = {
+        mean: Object.values(moving_average_values["('out_freq', 'mean')"]),
+        min: Object.values(moving_average_values["('out_freq', 'min')"]),
+        max: Object.values(moving_average_values["('out_freq', 'max')"]),
+        timestamps: Object.keys(moving_average_values["('out_freq', 'mean')"])
+    }
+            // break;
+        // case 'ua':
+    phase_ua_moving_average.value = {
+        mean: Object.values(moving_average_values["('out_ua', 'mean')"]),
+        min: Object.values(moving_average_values["('out_ua', 'min')"]),
+        max: Object.values(moving_average_values["('out_ua', 'max')"]),
+        timestamps: Object.keys(moving_average_values["('out_ua', 'mean')"])
+    }
+            // break;
+        // case 'ub':
+    phase_ub_moving_average.value = {
+        mean: Object.values(moving_average_values["('out_ub', 'mean')"]),
+        min: Object.values(moving_average_values["('out_ub', 'min')"]),
+        max: Object.values(moving_average_values["('out_ub', 'max')"]),
+        timestamps: Object.keys(moving_average_values["('out_ub', 'mean')"])
+    }
+            // break;
+        // case 'uc':
+    phase_uc_moving_average.value = {
+        mean: Object.values(moving_average_values["('out_uc', 'mean')"]),
+        min: Object.values(moving_average_values["('out_uc', 'min')"]),
+        max: Object.values(moving_average_values["('out_uc', 'max')"]),
+        timestamps: Object.keys(moving_average_values["('out_uc', 'mean')"])
+    }
+    //         break;
+    //     default:
+    //         break;
+    // }
+    
+    // console.log(loading_moving_average.value)
+
+    
+    // console.log(frequency_moving_average.value)
+
+    
+    // console.log(phase_ua_moving_average.value)
+
+    
+    // console.log(phase_ub_moving_average.value)
+
+    
+    // console.log(phase_uc_moving_average.value)
+
+}
+watch(() => transformerDataStore.average_values, (newVal) => {
+    updateAverageValues(newVal)
 })
 
-onUnmounted(() => {
-    clearInterval(intervalID.value)
+watch(() => transformerDataStore.moving_average_values, (newVal) => {
+    
+    updateMovingAverageValues(newVal)
+})
+
+// watch(() => expand, (newVal) => {
+//     get_moving_average_values('/dashboard/transformers/data/average/', transformerDataStore);
+//     // updateMovingAverageValues(transformerDataStore.moving_average_values)
+// })
+onMounted(() => {
+    if(transformerDataStore.average_values == null){
+        isLoading.value = true;
+        get_average_values('/dashboard/transformers/data/', transformerDataStore);
+        get_moving_average_values('/dashboard/transformers/data/average/', transformerDataStore);
+        isLoading.value = false;
+        
+    } else {
+        // console.log(transformerDataStore.average_values)
+        // console.log(transformerDataStore.moving_average_values)
+        updateAverageValues(transformerDataStore.average_values)
+        updateMovingAverageValues(transformerDataStore.moving_average_values)
+    }
 })
 
 </script>

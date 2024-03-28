@@ -7,6 +7,7 @@
 
 <script setup>
 
+import router from '@/router';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { watch } from 'vue';
@@ -45,6 +46,7 @@ function updateMarkers(){
     console.log('Updating map markers')
     //marker for each transformer received
     let locations = []
+    // let markers = new L.FeatureGroup()
     transformers.value.forEach((transformer) => {
         
         let mapmarker = L.marker(transformer.location.position, {
@@ -53,21 +55,29 @@ function updateMarkers(){
         
         locations.push(transformer.location.position)
 
-        mapmarker.bindTooltip(`Current: ${transformer.data.output_current.toFixed(2)}<br/>Voltage: ${transformer.data.output_voltage.toFixed(2)}<br/>Power: ${transformer.data.output_power.toFixed(2)}<br/>Status: ${transformer.location.operational ? 'Operational': 'Faulty'}`);
+        mapmarker.bindTooltip(`Percentage Loading: ${transformer.data.loading.toFixed(4)}<br/>Status: ${transformer.location.operational ? 'Operational': 'Faulty'}`);
 
-        mapmarker.on('mouseover', () => {
-            this.openTooltip();
-        });
+        // mapmarker.on('mouseover', () => {
+        //     this.openTooltip();
+        // });
 
-        mapmarker.on('mouseout', () => {
-            this.closeTooltip();
-        });
-
+        // mapmarker.on('mouseout', () => {
+        //     this.closeTooltip();
+        // });
+        mapmarker.on('click', () => {
+            console.log(transformer.devUID);
+            // transformerStats(transformer.devUID);
+        })
         mapmarkers.value.push(mapmarker)
+        // mapmarker.addTo(markers)
     });
 
     if(locations){
+        console.log(locations)
         let bounds = L.latLngBounds(locations)
+        // let bounds2 = markers.getBounds()
+        // console.log(bounds2.isValid())
+        // console.log(bounds.isValid())
         if(map.value){
             map.value.fitBounds(bounds)
         }
@@ -85,6 +95,9 @@ watch(() => props.transformers, (newVal, oldVal) => {
     });
 }) 
 
+
+
+
 onMounted(() => {
     map.value = L.map('map').setView([0.34759640, 32.58251970], 12);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -92,12 +105,19 @@ onMounted(() => {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map.value);
     // transformers.value = props.transformers;
-
+    // updateMarkers();
     mapmarkers.value.forEach((mapmarker)=>{
         mapmarker.addTo(map.value);
         console.log('Added to map')
     });
+    // updateMarkers();
+    // map.value.fitBounds(mapmarkers.value)
 });
 
+
+
+const transformerStats = (transformer_id) => {
+    router.push({name: 'transformerstats', params: {transformerDevUID: transformer_id}})
+} 
 
 </script>

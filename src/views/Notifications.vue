@@ -58,19 +58,19 @@ watch(() => appStore.notifications, (newVal, oldVal) => {
     }
 })
 
-watch(option, (newVal, oldVal) => {
-    if(newVal === 'Latest'){
-        // get_notifications('http://localhost:8000/dashboard/notifications/latest/', appStore)
-        get_notifications('https://fyp-backend-ot0p.onrender.com/dashboard/notifications/latest/', appStore)
-    }
-    if(newVal === 'All'){
-        // get_notifications('http://localhost:8000/dashboard/notifications/all/', appStore)
-        get_notifications('https://fyp-backend-ot0p.onrender.com/dashboard/notifications/latest/', appStore)
-    }
-})
+// watch(option, (newVal, oldVal) => {
+//     if(newVal === 'Latest'){
+//         // get_notifications('http://localhost:8000/dashboard/notifications/latest/', appStore)
+//         // get_notifications('https://fyp-backend-ot0p.onrender.com/dashboard/notifications/latest/', appStore)
+//     }
+//     if(newVal === 'All'){
+//         // get_notifications('http://localhost:8000/dashboard/notifications/all/', appStore)
+//         // get_notifications('https://fyp-backend-ot0p.onrender.com/dashboard/notifications/latest/', appStore)
+//     }
+// })
 
-onMounted(() => {
-    notifications.value = appStore.notifications
-})
+// onMounted(() => {
+//     notifications.value = appStore.notifications
+// })
 
 </script>

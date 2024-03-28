@@ -9,6 +9,7 @@
                     <v-form class="pt-5">
                         <v-text-field label="DevUID" variant="outlined" v-model="devUID"></v-text-field>
                         <v-text-field label="Nominal Power Rating" variant="outlined" v-model="nominal_power_rating"></v-text-field>
+                        <v-select label="Type" variant="outlined" :items="['SINGLE', 'THREE']" v-model="transformer_type"></v-select>
                         <v-card variant="flat" align="left">
                             <v-card-title class="mb-2">Position</v-card-title>    
                             <v-row>
@@ -40,21 +41,25 @@ const devUID = ref(null)
 const lat = ref(null)
 const lng = ref(null)
 const nominal_power_rating = ref(null)
+const transformer_type = ref(null)
 const appStore = useAppStore()
 
 const submit = () => {
-    console.log(devUID.value);
-    console.log(lat.value);
-    console.log(lng.value);
-
+    // console.log(devUID.value);
+    // console.log(lat.value);
+    // console.log(lng.value);
+    // console.log(nominal_power_rating.value)
+    // console.log(transformer_type.value)
     if(devUID.value && lat.value && lng.value && nominal_power_rating.value){
         let formData = new FormData();
         formData.append('devUID', devUID.value);
         formData.append('latitude', lat.value);
         formData.append('longitude', lng.value)
         formData.append('nominal_power_rating', nominal_power_rating.value)
+        formData.append('nominal_power_rating', transformer_type.value)
+        // console.log(formData)
         // register('http://localhost:8000/data/transformers/register/', formData, appStore);
-        register('https://fyp-backend-ot0p.onrender.com/data/transformers/register/', formData, appStore);
+        // register('https://fyp-backend-ot0p.onrender.com/data/transformers/register/', formData, appStore);
     } else {
         alert("Fill in the devUID, Latitude and Longitude")
     }
@@ -68,6 +73,9 @@ onMounted(() => {
             lng.value = position.coords.longitude;
 
             console.log(`Latitude: ${lat.value}, Longitude: ${lng.value}`);
+        },
+        (error) => {
+            console.log("Error: ", error.message)
         })
     }
 });

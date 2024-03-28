@@ -19,7 +19,7 @@ Tooltip,
 Legend
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
 ChartJS.register(
 CategoryScale,
@@ -32,6 +32,7 @@ Legend
 )
 
 const props = defineProps(['chartData', 'chartTitle', 'dataType'])
+const emit = defineEmits(['loaded'])
 
 const chartData = ref({
     labels: [], 
@@ -46,16 +47,28 @@ const chartData = ref({
 })
 
 
-watch(() => props.chartData, (newVal, oldVal) => {
+watch(() => props.chartData, (newVal) => {
     // console.log('Old Value', chartData.value)
     chartData.value = {
-        labels: newVal.data.x, 
+        labels: newVal.timestamps, 
         datasets: [
             {
-                label: newVal.label, 
-                backgroundColor: "#f80000",
-                borderColor: "#f80000",
-                data: newVal.data.y
+                label: "Min", 
+                backgroundColor: "#0000ff",
+                borderColor: "#0000ff",
+                data: newVal.min
+            },
+            {
+                label: "Mean", 
+                backgroundColor: "#00ff00",
+                borderColor: "#00ff00",
+                data: newVal.mean
+            },
+            {
+                label: "Max", 
+                backgroundColor: "#ff0000",
+                borderColor: "#ff0000",
+                data: newVal.max
             }
         ]
     }
@@ -107,5 +120,8 @@ const chartOptions = ref({
     }
 })
 
+onMounted(() => {
+    emit('loaded')
+})
 </script>
   
