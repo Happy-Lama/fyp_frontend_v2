@@ -56,18 +56,24 @@ watch(() => props.chartData, (newVal) => {
                 label: "Min", 
                 backgroundColor: "#0000ff",
                 borderColor: "#0000ff",
+                tension: 0.6,
+                pointRadius: 0,
                 data: newVal.min
             },
             {
                 label: "Mean", 
                 backgroundColor: "#00ff00",
                 borderColor: "#00ff00",
+                tension: 0.6,
+                pointRadius: 0,
                 data: newVal.mean
             },
             {
                 label: "Max", 
                 backgroundColor: "#ff0000",
                 borderColor: "#ff0000",
+                tension: 0.6,
+                pointRadius: 0,
                 data: newVal.max
             }
         ]
@@ -85,13 +91,13 @@ const chartOptions = ref({
                 text: "Time"
             }, 
             ticks : {
-                display: false,
+                display: true
             }
         },
         y: {
             title : {
                 display: true,
-                text: "Y-Axis"
+                // text: "Y-Axis"
             },
             ticks : {
                 callback: function(value, index, ticks) {
