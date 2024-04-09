@@ -56,7 +56,7 @@ const submit = () => {
         formData.append('latitude', lat.value);
         formData.append('longitude', lng.value)
         formData.append('nominal_power_rating', nominal_power_rating.value)
-        formData.append('nominal_power_rating', transformer_type.value)
+        formData.append('type', transformer_type.value)
         // console.log(formData)
         // register('http://localhost:8000/data/transformers/register/', formData, appStore);
         register('https://fyp-server-django.onrender.com/dashboard/transformers/register/', formData, appStore);
