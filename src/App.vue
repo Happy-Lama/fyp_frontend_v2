@@ -47,9 +47,9 @@ getToken(messaging, { vapidKey: 'BIB3GyustUsKi1cb9qe_MV-n5a1zFezDpuHMLHnJfYnO5Ki
     
     console.log(currentToken)
     const uri = getURI()
-    // fetch(`${uri}/dashboard/subscribe/${currentToken}`).then((response) => {
-    //   console.log(response.json())
-    // })
+    fetch(`${uri}/dashboard/subscribe/${currentToken}`).then((response) => {
+      console.log(response.json())
+    })
     token.value = currentToken
   } else {
     // Show permission request UI
