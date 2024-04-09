@@ -59,7 +59,7 @@ const submit = () => {
         formData.append('nominal_power_rating', transformer_type.value)
         // console.log(formData)
         // register('http://localhost:8000/data/transformers/register/', formData, appStore);
-        // register('https://fyp-backend-ot0p.onrender.com/data/transformers/register/', formData, appStore);
+        register('https://fyp-server-django.onrender.com/dashboard/transformers/register/', formData, appStore);
     } else {
         alert("Fill in the devUID, Latitude and Longitude")
     }
