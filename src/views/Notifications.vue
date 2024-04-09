@@ -10,13 +10,13 @@
         </v-row>
         <v-row v-for="notification in notifications" class="mb-5"> 
             <v-alert
-                :type="notification.priority"
+                :type="notification.notification_type === 'DANGER' ? 'error': notification.notification_type === 'WARN' ? 'warning': 'info'"
             >
                 <v-alert-title>
-                    {{ notification.title }} ({{notification.timestamp}})
+                    {{ notification.notification_type }} ({{notification.timestamp}})
                 </v-alert-title>
                 <v-alert-text>
-                    {{ notification.text }}
+                    {{ notification.message }}
                 </v-alert-text>
             </v-alert>
         </v-row>
