@@ -1,301 +1,116 @@
 <template>
-    <RouterLink to="/">
-        <v-btn  variant="flat">
+    <RouterLink to='/'>
+        <h2>
             Back to Home
-        </v-btn>
+        </h2>
     </RouterLink>
+    <LoadingScreen v-if="isLoading"></LoadingScreen>
+    <h2> Transformer {{  route.params.transformerDevUID }} </h2>
     <v-container>
-        <v-card class="mb-8">
-            <v-row align="center" justify="center" style="height: 100vh; max-height: max-content;">
-                    <v-card align="center" style="height: 100vh;" justify="center" variant="flat">
-                        <v-card-title>
-                            Summary of Statistics
-                        </v-card-title>
-                        <v-row style="height: 95%;" align="center" justify="center">
-                            <v-col cols="12" md="6">
-                                <v-card variant="flat">
-                                    <v-card-title class="text-h4">
-                                        {{ average_power.toFixed(4) }}
-                                    </v-card-title>
-                                    <v-card-text>
-                                        Output Power (kW)
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-card variant="flat">
-                                    <v-card-title class="text-h4">
-                                        {{ average_voltage }}    
-                                    </v-card-title>
-                                    <v-card-text>
-                                        Output Voltage (V)
-                                    </v-card-text>
-                                    
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" md="6" align-self="start">
-                                <v-card variant="flat">
-                                    <v-card-title class="text-h4">
-                                        {{ average_transformer_loading }}
-                                    </v-card-title>
-                                    <v-card-text>
-                                        Transformer Loading (%)
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" md="6" align-self="start">
-                                <v-card variant="flat" >
-                                    <v-card-title class="text-h4">
-                                        {{ average_frequency }}
-                                    </v-card-title>
-                                    <v-card-text>
-                                        Output Frequency (Hz)
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                        </v-row>
-                    </v-card>
-                <!-- </v-col> -->
-            </v-row>
-        </v-card>
-        
         <v-row>
 
-            <!-- Average Loading Chart -->
-            <v-col cols="12" md="6">
-                <ChartComponent :chart-data="loadingChartData" chart-title="Current Loading" data-type="loading_percentage"/>
-            </v-col>
+                <v-card width="100%" class="ma-8" >
+                    
+                    <ChartComponent :chartData="out_u"  dataType="voltage" chartTitle="Voltage" page="tstat"/>
+                </v-card>
+                
+             
+                <v-card width="100%" class="ma-8" >
+                    <ChartComponent :chartData="out_i"  dataType="current" chartTitle="Current" page="tstat"/>
+                </v-card>
 
-            <!-- Average Power Chart -->
-            <v-col cols="12" md="6">
-                <ChartComponent :chart-data="powerChartData" chart-title="Output Power" data-type="power"/>
-            </v-col>
-
-            <!-- Average Voltage Chart -->
-            <v-col cols="12" md="6">
-                <ChartComponent :chart-data="voltageChartData" chart-title="Output Voltage" data-type="voltage"/>
-            </v-col>
-
-            <!-- Average Reactive Power Chart -->
-            <v-col cols="12" md="6">
-                <ChartComponent :chart-data="reactivePowerChartData" chart-title="Output Reactive Power" data-type="reactive_power"/>
-            </v-col>
-
-            <!-- Average Current Chart -->
-            <v-col cols="12" md="6">
-                <ChartComponent :chart-data="currentChartData" chart-title="Output Current" data-type="current"/>
-            </v-col>
-
-            <!-- Average Frequency Chart  -->
-            <v-col cols="12" md="6">
-                <ChartComponent :chart-data="frequencyChartData" chart-title="Output Frequency" data-type="frequency"/>
-            </v-col>
-
+               
+                <v-card width="100%" class="ma-8" >
+                    <ChartComponent :chartData="out_freq"  dataType="frequency" chartTitle="Frequency" page="tstat"/>
+                </v-card>
+     
         </v-row>
     </v-container>
 
 </template>
 
 <script setup>
-
-import { ref, watch } from 'vue';
-import ChartComponent from '@/components/ChartComponent.vue';
 // import CircularChartComponent from '@/components/CircularChartComponent.vue';
-import { useAppStore } from '@/store/app';
-import { onMounted } from 'vue';
-import { get_average_values, get_latest_transformer_data } from '@/httpservice';
-import { onUnmounted } from 'vue';
-
-const appStore = useAppStore();
-const average_power = ref(0.0);
-const average_voltage = ref(0.0);
-const average_transformer_loading = ref(0.0);
-const average_frequency = ref(0.0);
-
-const circhartData = ref({
-  online: 0,
-  offline: 0,
-});
-
-const powerChartData = ref({
-    label: 'Power',
-    data: {
-        x: [],
-        y: []
-    }
-});
-const reactivePowerChartData = ref({
-    label: 'Reactive Power',
-    data: {
-        x: [],
-        y: []
-    }
-});
-const voltageChartData = ref({
-    label: 'Voltage',
-    data: {
-        x: [],
-        y: []
-    }
+import ChartComponent from '@/components/ChartComponent.vue'
+// import BarChartComponent from '@/components/BarChartComponent.vue';
+import { ref, onMounted, watch } from 'vue';
+import { useTransformerDataStore } from '@/store/app';
+import { get_transformer_data } from '@/httpservice';
+import LoadingScreen from '@/components/LoadingScreen.vue'
+import { useRoute } from 'vue-router';
+// const barChartData = ref([])
+const transformerDataStore = useTransformerDataStore();
+const isLoading = ref(null)
+const expand = ref(null)
+const out_u = ref({
+    a: [],
+    b: [],
+    c: [],
+    timestamps: []
 })
-const currentChartData = ref({
-    label: 'Current',
-    data: {
-        x: [],
-        y: []
-    }
-})
-const frequencyChartData = ref({
-    label: 'Frequency',
-    data: {
-        x: [],
-        y: []
-    }
-})
-const loadingChartData = ref({
-    label: 'Average Loading',
-    data: {
-        x: [],
-        y: []
-    }
+const out_i = ref({
+    a: [],
+    b: [],
+    c: [],
+    timestamps: []
 })
 
-function updateValues(newVal, oldVal){
-    // let empty_val = new Proxy(Object())
-    // console.log("New value", newVal['average_transformer_loading'] == null)
-    // console.log("Old val", oldVal)
-    if(newVal['average_transformer_loading'] && newVal['average_output_voltage'] && newVal['average_output_power'] && newVal['average_output_frequency']){
-        average_transformer_loading.value = newVal['average_transformer_loading']
-        average_voltage.value = newVal['average_output_voltage']
-        average_power.value = newVal['average_output_power']/1000
-        average_frequency.value = newVal['average_output_frequency']
-        // console.log(average_current.value)
-        // average_current.value = 100
+const out_freq = ref({
+    freq: [],
+    timestamps: []
+})
 
-        circhartData.value = {
-            online: 0,
-            offline: 0,
-        }
 
-        appStore.transformer_location_data.forEach((location) => {
-            // console.log(location)
-            
 
-            if(location['operational']){
-                circhartData.value = { online: ++circhartData.value.online , offline: circhartData.value.offline }
-            } else {
-                circhartData.value = { online: circhartData.value.online , offline: ++circhartData.value.offline }
-            }
-        })
+function updateValues(values, oldVal){
+    let ua = []
+    let ub = []
+    let uc = []
+    let ia = []
+    let ib = []
+    let ic = []
+    let freq = []
+    let timestamps = []
+    values.forEach((value) => {
+        ua.push(value.out_ua)
+        ub.push(value.out_ub)
+        uc.push(value.out_uc)
+        ia.push(value.out_ia)
+        ib.push(value.out_ib)
+        ic.push(value.out_ic)
+        freq.push(value.out_freq)
+        timestamps.push(value.timestamp)
+    })
 
-        console.log(circhartData.value)
-        let timestamps = []
-        let powerdata = []
-        let currentdata = []
-        let voltagedata = []
-        let reactivepowerdata = []
-        let frequencydata = []
-        let loadingdata = []
+    out_u.value = {
+        a : ua,
+        b: ub,
+        c: uc,
+        timestamps: timestamps
+    }
 
-        if(appStore.moving_average_values){
-            appStore.moving_average_values.forEach((data) => {
-                timestamps.push(data['timestamp'])
-                powerdata.push(data['average_values']['output_power__avg']/1000)
-                currentdata.push(data['average_values']['output_current__avg'])
-                voltagedata.push(data['average_values']['output_voltage__avg'])
-                reactivepowerdata.push(data['average_values']['output_reactive_power__avg']/1000)
-                frequencydata.push(data['average_values']['output_frequency__avg'])
-                loadingdata.push(data['average_values']['current_loading_percentage__avg'])
-            })
-        
-            powerChartData.value = {
-                label: 'Power',
-                data: {
-                    x: timestamps,
-                    y: powerdata
-                }
-            }
-            
+    out_i.value = {
+        a : ia,
+        b: ib,
+        c: ic,
+        timestamps: timestamps
+    }
 
-            currentChartData.value = {
-                label: 'Current',
-                data: {
-                    x: timestamps,
-                    y: currentdata
-                }
-            }
-            
-
-            voltageChartData.value ={
-                label: 'Voltage',
-                data: {
-                    x: timestamps,
-                    y: voltagedata
-                }
-            }
-            
-            
-            reactivePowerChartData.value = {
-                label: 'Reactive Power',
-                data: {
-                    x: timestamps,
-                    y: reactivepowerdata
-                }
-            }
-            
-
-            frequencyChartData.value = {
-                label: 'Frequency',
-                data: {
-                    x: timestamps,
-                    y: frequencydata
-                }
-            }
-
-            loadingChartData.value = {
-                label: 'Average Loading',
-                data: {
-                    x: timestamps,
-                    y: loadingdata
-                }
-            }
-        }
+    out_freq.value = {
+        freq: freq,
+        timestamps: timestamps
     }
 }
 
-const intervalID = ref(null)
-
-watch(() => appStore.average_values, (newVal, oldVal) => {
+watch(() => transformerDataStore.transformer_data, (newVal, oldVal) => {
     updateValues(newVal, oldVal)
 })
 
-// onMounted(() => {
-//     if(appStore.average_values == null){
-//         //get_latest_transformer_data('http://localhost:8000/data/transformers/latest/', appStore)
-//        // get_average_values('http://localhost:8000/data/transformers/average_values/', appStore)
-//         // get_latest_transformer_data('https://fyp-backend-ot0p.onrender.com/data/transformers/latest/', appStore)
-//         // get_average_values('https://fyp-backend-ot0p.onrender.com/data/transformers/average_values/', appStore)
-        
-
-//         intervalID.value = setInterval(()=>{
-//            // get_latest_transformer_data('http://localhost:8000/data/transformers/latest/', appStore)
-//            // get_average_values('http://localhost:8000/data/transformers/average_values/', appStore)
-//             // get_latest_transformer_data('https://fyp-backend-ot0p.onrender.com/data/transformers/latest/', appStore)
-//         // get_average_values('https://fyp-backend-ot0p.onrender.com/data/transformers/average_values/', appStore)
-//         }, 30000)
-//     } else {
-//         updateValues(appStore.average_values)
-//         intervalID.value = setInterval(()=>{
-//             //get_latest_transformer_data('http://localhost:8000/data/transformers/latest/', appStore)
-//            // get_average_values('http://localhost:8000/data/transformers/average_values/', appStore)
-//             // get_latest_transformer_data('https://fyp-backend-ot0p.onrender.com/data/transformers/latest/', appStore)
-//         // get_average_values('https://fyp-backend-ot0p.onrender.com/data/transformers/average_values/', appStore)
-//         }, 30000)
-//     }
-// })
-
-// onUnmounted(() => {
-//     clearInterval(intervalID.value)
-// })
+const route = useRoute()
+onMounted(() => {
+    
+    console.log(route.params.transformerDevUID)
+    get_transformer_data(`/dashboard/transformers/${route.params.transformerDevUID}/`, transformerDataStore)
+})
 
 </script>

@@ -406,24 +406,6 @@ function updateMovingAverageValues(moving_average_values){
         max: Object.values(moving_average_values["('out_uc', 'max')"]),
         timestamps: Object.keys(moving_average_values["('out_uc', 'mean')"])
     }
-    //         break;
-    //     default:
-    //         break;
-    // }
-    
-    // console.log(loading_moving_average.value)
-
-    
-    // console.log(frequency_moving_average.value)
-
-    
-    // console.log(phase_ua_moving_average.value)
-
-    
-    // console.log(phase_ub_moving_average.value)
-
-    
-    // console.log(phase_uc_moving_average.value)
 
 }
 watch(() => transformerDataStore.average_values, (newVal) => {

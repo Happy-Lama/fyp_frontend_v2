@@ -5,16 +5,16 @@ import router from '@/router';
 
 // const appStore = useAppStore();
 const getURI = () => {
-    const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-    const hostname = window.location.protocol === 'https:' ? 'fyp-server-django.onrender.com' : window.location.hostname;
-    const port = window.location.port ? `:${8000}` : '';
+    const protocol = window.location.protocol === 'https:' ? 'https:' : 'https:';
+    const hostname = window.location.protocol === 'https:' ? 'fyp-server-django.onrender.com' : 'fyp-server-django.onrender.com';//window.location.hostname;
+    const port = window.location.port ? '' : '';
     return `${protocol}//${hostname}${port}`;
 };
 
 const getWebSocketURI = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const hostname = window.location.protocol === 'https:' ? 'fyp-server-django.onrender.com' : window.location.hostname;
-    const port = window.location.port ? `:${8000}` : '';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'wss:';
+    const hostname = window.location.protocol === 'https:' ? 'fyp-server-django.onrender.com' : 'fyp-server-django.onrender.com';//window.location.hostname;
+    const port = window.location.port ? '' : '';
     return `${protocol}//${hostname}${port}/ws/notifications/`;
 };
 
@@ -141,5 +141,17 @@ function get_notifications(url, store){
         console.error(error);
     }) 
 }
+function get_transformer_data(url, store){
+    let uri = getURI()
+    axios.get(uri + url)
+    .then((response) => {
+        console.log(response.data)
 
-export { login, get_csrf_token, register, get_latest_transformer_data, get_average_values, logout, get_notifications, getURI, getWebSocketURI, get_moving_average_values }
+        store.transformer_data = response.data.data
+    })
+    .catch((error) => {
+        console.error(error);
+    })
+
+}
+export { login, get_csrf_token, register, get_latest_transformer_data, get_average_values, logout, get_notifications, getURI, getWebSocketURI, get_moving_average_values, get_transformer_data }

@@ -66,7 +66,7 @@ function updateMarkers(){
         // });
         mapmarker.on('click', () => {
             console.log(transformer.devUID);
-            // transformerStats(transformer.devUID);
+            transformerStats(transformer.devUID);
         })
         mapmarkers.value.push(mapmarker)
         // mapmarker.addTo(markers)

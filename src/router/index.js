@@ -34,7 +34,7 @@ const routes = [
         component: () => import('@/views/Notifications.vue'),
       },
       {
-        path: 'transformer',
+        path: 'transformer/:transformerDevUID',
         name: 'transformerstats',
         component: () => import('@/views/TransformerStatistics.vue')
       }

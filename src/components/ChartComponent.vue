@@ -31,7 +31,7 @@ Tooltip,
 Legend
 )
 
-const props = defineProps(['chartData', 'chartTitle', 'dataType'])
+const props = defineProps(['chartData', 'chartTitle', 'dataType', 'page'])
 const emit = defineEmits(['loaded'])
 
 const chartData = ref({
@@ -49,34 +49,82 @@ const chartData = ref({
 
 watch(() => props.chartData, (newVal) => {
     // console.log('Old Value', chartData.value)
-    chartData.value = {
-        labels: newVal.timestamps, 
-        datasets: [
-            {
-                label: "Min", 
-                backgroundColor: "#0000ff",
-                borderColor: "#0000ff",
-                tension: 0.6,
-                pointRadius: 0,
-                data: newVal.min
-            },
-            {
-                label: "Mean", 
-                backgroundColor: "#00ff00",
-                borderColor: "#00ff00",
-                tension: 0.6,
-                pointRadius: 0,
-                data: newVal.mean
-            },
-            {
-                label: "Max", 
-                backgroundColor: "#ff0000",
-                borderColor: "#ff0000",
-                tension: 0.6,
-                pointRadius: 0,
-                data: newVal.max
+    if (props.page != 'tstat'){
+        chartData.value = {
+            labels: newVal.timestamps, 
+            datasets: [
+                {
+                    label: "Min", 
+                    backgroundColor: "#0000ff",
+                    borderColor: "#0000ff",
+                    tension: 0.6,
+                    pointRadius: 0,
+                    data: newVal.min
+                },
+                {
+                    label: "Mean", 
+                    backgroundColor: "#00ff00",
+                    borderColor: "#00ff00",
+                    tension: 0.6,
+                    pointRadius: 0,
+                    data: newVal.mean
+                },
+                {
+                    label: "Max", 
+                    backgroundColor: "#ff0000",
+                    borderColor: "#ff0000",
+                    tension: 0.6,
+                    pointRadius: 0,
+                    data: newVal.max
+                }
+            ]
+        }
+    } else {
+        if(props.dataType != 'frequency'){
+            chartData.value = {
+                labels: newVal.timestamps, 
+                datasets: [
+                    {
+                        label: "A", 
+                        backgroundColor: "#0000ff",
+                        borderColor: "#0000ff",
+                        tension: 0.6,
+                        pointRadius: 0,
+                        data: newVal.a
+                    },
+                    {
+                        label: "B", 
+                        backgroundColor: "#00ff00",
+                        borderColor: "#00ff00",
+                        tension: 0.6,
+                        pointRadius: 0,
+                        data: newVal.b
+                    },
+                    {
+                        label: "C", 
+                        backgroundColor: "#ff0000",
+                        borderColor: "#ff0000",
+                        tension: 0.6,
+                        pointRadius: 0,
+                        data: newVal.c
+                    }
+                ]
             }
-        ]
+        } else {
+            chartData.value = {
+                labels: newVal.timestamps, 
+                datasets: [
+                    {
+                        label: "Frequency", 
+                        backgroundColor: "#0000ff",
+                        borderColor: "#0000ff",
+                        tension: 0.6,
+                        pointRadius: 0,
+                        data: newVal.freq
+                    },
+                ]
+            }
+        }
     }
     // console.log('New Value', chartData.value)
 })
